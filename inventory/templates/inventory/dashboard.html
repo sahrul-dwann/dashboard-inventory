@@ -1,5 +1,6 @@
 
 {% extends 'inventory/base.html' %}
+{% load static %}
 
 {% block title %}Dashboard - Inventory System{% endblock %}
 
@@ -8,18 +9,19 @@
 <!-- Header Dashboard -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold">Dashboard</h2>
+        <h2 class="fw-bold mb-1">Dashboard</h2>
         <p class="text-muted mb-0">
             Selamat datang di Sistem Informasi Inventory
         </p>
     </div>
 
-    <span class="badge bg-primary p-2">Administrator</span>
+    <span class="badge bg-primary p-2">
+        Administrator
+    </span>
 </div>
 
-
 <!-- Statistik Barang -->
-<div class="row g-4 mb-4">
+<div class="row g-4">
 
     <div class="col-md-4">
         <div class="card stat-card shadow-sm">
@@ -47,214 +49,338 @@
 
 </div>
 
+<!-- Grafik Dashboard -->
+<div class="row g-4 mt-2">
 
-<!-- Daftar Barang -->
-<div class="card border-0 shadow-sm">
-    <div class="card-body">
+    <!-- Grafik Kategori -->
+    <div class="col-lg-6">
+        <div class="card chart-card h-100">
+            <div class="card-body p-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0">Daftar Barang</h5>
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-1">
+                        Barang Berdasarkan Kategori
+                    </h5>
+                    <p class="text-muted small mb-0">
+                        Distribusi jumlah barang setiap kategori
+                    </p>
+                </div>
 
-            <a href="{% url 'tambah_barang' %}"
-               class="btn btn-primary btn-sm">
-                + Tambah Barang
-            </a>
-        </div>
+                <div class="chart-container">
+                    <canvas id="kategoriChart"></canvas>
+                </div>
 
-
-        <!-- Pencarian dan Filter -->
-        <form method="GET" class="row g-2 mb-4">
-
-            <div class="col-md-5">
-                <input
-                    type="text"
-                    name="search"
-                    class="form-control"
-                    placeholder="Cari kode atau nama barang..."
-                    value="{{ search }}"
-                >
             </div>
-
-            <div class="col-md-4">
-                <select name="kategori" class="form-select">
-                    <option value="">Semua Kategori</option>
-
-                    {% for kategori in kategori_list %}
-                        <option
-                            value="{{ kategori }}"
-                            {% if kategori_filter == kategori %}selected{% endif %}
-                        >
-                            {{ kategori }}
-                        </option>
-                    {% endfor %}
-
-                </select>
-            </div>
-
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">
-                    Cari
-                </button>
-
-                <a href="{% url 'dashboard' %}"
-                   class="btn btn-secondary">
-                    Reset
-                </a>
-            </div>
-
-        </form>
-
-
-        <!-- Tabel Barang -->
-        <div class="table-responsive">
-
-            <table class="table table-hover align-middle">
-
-                <thead class="table-light">
-                    <tr>
-                        <th>No</th>
-                        <th>Kode Barang</th>
-                        <th>Nama Barang</th>
-                        <th>Kategori</th>
-                        <th>Stok</th>
-                        <th>Harga</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    {% for item in barang %}
-
-                    <tr>
-                        <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
-
-                        <td>{{ item.kode_barang }}</td>
-
-                        <td>{{ item.nama_barang }}</td>
-
-                        <td>{{ item.kategori }}</td>
-
-                        <td>
-                            {% if item.stok <= 5 %}
-                                <span class="badge bg-warning text-dark">
-                                    {{ item.stok }}
-                                </span>
-                            {% else %}
-                                <span class="badge bg-success">
-                                    {{ item.stok }}
-                                </span>
-                            {% endif %}
-                        </td>
-
-                        <td>Rp {{ item.harga }}</td>
-
-                        <td>
-                            <div class="d-flex gap-1">
-
-                                <a href="{% url 'edit_barang' item.id %}"
-                                   class="btn btn-sm btn-warning">
-                                    Edit
-                                </a>
-
-                                <a href="{% url 'hapus_barang' item.id %}"
-                                   class="btn btn-sm btn-danger">
-                                    Hapus
-                                </a>
-
-                            </div>
-                        </td>
-                    </tr>
-
-                    {% empty %}
-
-                    <tr>
-                        <td colspan="7"
-                            class="text-center text-muted py-4">
-                            Data barang tidak ditemukan.
-                        </td>
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
         </div>
-
-
-        <!-- Informasi Data -->
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
-
-            <small class="text-muted">
-                Menampilkan {{ page_obj.start_index }} -
-                {{ page_obj.end_index }} dari
-                {{ page_obj.paginator.count }} data.
-            </small>
-
-            <!-- Pagination -->
-            {% if page_obj.has_other_pages %}
-
-            <nav>
-                <ul class="pagination pagination-sm mb-0">
-
-                    <!-- Previous -->
-                    {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ page_obj.previous_page_number }}&search={{ search|urlencode }}&kategori={{ kategori_filter|urlencode }}">
-                                Sebelumnya
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">Sebelumnya</span>
-                        </li>
-                    {% endif %}
-
-
-                    <!-- Nomor Halaman -->
-                    {% for num in page_obj.paginator.page_range %}
-
-                        {% if page_obj.number == num %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
-                        {% else %}
-                            <li class="page-item">
-                                <a class="page-link"
-                                   href="?page={{ num }}&search={{ search|urlencode }}&kategori={{ kategori_filter|urlencode }}">
-                                    {{ num }}
-                                </a>
-                            </li>
-                        {% endif %}
-
-                    {% endfor %}
-
-
-                    <!-- Next -->
-                    {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ page_obj.next_page_number }}&search={{ search|urlencode }}&kategori={{ kategori_filter|urlencode }}">
-                                Selanjutnya
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">Selanjutnya</span>
-                        </li>
-                    {% endif %}
-
-                </ul>
-            </nav>
-
-            {% endif %}
-
-        </div>
-
     </div>
+
+    <!-- Grafik Stok -->
+    <div class="col-lg-6">
+        <div class="card chart-card h-100">
+            <div class="card-body p-4">
+
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-1">
+                        Perbandingan Stok Barang
+                    </h5>
+                    <p class="text-muted small mb-0">
+                        10 barang dengan jumlah stok tertinggi
+                    </p>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="stokChart"></canvas>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 
+<style>
+    .chart-card {
+        border: none;
+        border-radius: 14px;
+        background-color: #ffffff;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.04);
+    }
+
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 300px;
+    }
+
+    .chart-card h5 {
+        color: #17243a;
+    }
+
+    @media (max-width: 768px) {
+        .chart-container {
+            height: 260px;
+        }
+    }
+</style>
+
 {% endblock %}
+
+
+
+{% block extra_js %}
+
+<script src="{% static 'inventory/js/chart.umd.min.js' %}"></script>
+
+{{ kategori_chart|json_script:"kategori-data" }}
+{{ stok_chart|json_script:"stok-data" }}
+
+<script>
+    // Mengambil data dari Django
+    const kategoriData = JSON.parse(
+        document.getElementById('kategori-data').textContent
+    );
+
+    const stokData = JSON.parse(
+        document.getElementById('stok-data').textContent
+    );
+
+    // Warna grafik
+    const chartColors = [
+        '#2563eb',
+        '#0ea5e9',
+        '#14b8a6',
+        '#f59e0b',
+        '#8b5cf6',
+        '#ec4899',
+        '#64748b'
+    ];
+
+    // Menghitung total barang berdasarkan kategori
+    const totalBarang = kategoriData.reduce(
+        (total, item) => total + Number(item.total),
+        0
+    );
+
+    // Plugin teks di tengah Doughnut
+    const centerTextPlugin = {
+        id: 'centerText',
+
+        afterDraw(chart) {
+            const { ctx, chartArea } = chart;
+
+            if (!chartArea) return;
+
+            const centerX = (chartArea.left + chartArea.right) / 2;
+            const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+            ctx.save();
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Angka total barang
+            ctx.font = 'bold 30px Arial';
+            ctx.fillStyle = '#17243a';
+
+            ctx.fillText(
+                totalBarang,
+                centerX,
+                centerY - 10
+            );
+
+            // Label total barang
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#64748b';
+
+            ctx.fillText(
+                'Total Barang',
+                centerX,
+                centerY + 18
+            );
+
+            ctx.restore();
+        }
+    };
+
+
+    // Plugin angka di atas batang grafik
+    const barLabelPlugin = {
+        id: 'barLabel',
+
+        afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            const meta = chart.getDatasetMeta(0);
+
+            ctx.save();
+
+            ctx.font = 'bold 12px Arial';
+            ctx.fillStyle = '#17243a';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+
+            meta.data.forEach((bar, index) => {
+                const value = chart.data.datasets[0].data[index];
+
+                ctx.fillText(
+                    value,
+                    bar.x,
+                    bar.y - 8
+                );
+            });
+
+            ctx.restore();
+        }
+    };
+
+
+    // Grafik Barang Berdasarkan Kategori
+    new Chart(document.getElementById('kategoriChart'), {
+        type: 'doughnut',
+
+        data: {
+            labels: kategoriData.map(item => item.kategori),
+
+            datasets: [{
+                data: kategoriData.map(item => item.total),
+                backgroundColor: chartColors,
+                borderColor: '#ffffff',
+                borderWidth: 4,
+                hoverOffset: 10,
+                borderRadius: 5,
+                spacing: 2
+            }]
+        },
+
+        plugins: [centerTextPlugin],
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '68%',
+
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 1200,
+                easing: 'easeOutQuart'
+            },
+
+            plugins: {
+                legend: {
+                    position: 'bottom',
+
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        padding: 20,
+                        color: '#64748b',
+
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+
+                tooltip: {
+                    backgroundColor: '#17243a',
+                    padding: 12,
+                    cornerRadius: 8
+                }
+            }
+        }
+    });
+
+
+    // Grafik Perbandingan Stok Barang
+    new Chart(document.getElementById('stokChart'), {
+        type: 'bar',
+
+        data: {
+            labels: stokData.map(item => item.nama_barang),
+
+            datasets: [{
+                label: 'Jumlah Stok',
+
+                data: stokData.map(item => item.stok),
+
+                backgroundColor: '#2563eb',
+                hoverBackgroundColor: '#17243a',
+                borderRadius: 7,
+                borderSkipped: false,
+                barThickness: 25,
+                maxBarThickness: 35
+            }]
+        },
+
+        plugins: [barLabelPlugin],
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            animation: {
+                duration: 1200,
+                easing: 'easeOutQuart'
+            },
+
+            plugins: {
+                legend: {
+                    display: false
+                },
+
+                tooltip: {
+                    backgroundColor: '#17243a',
+                    padding: 12,
+                    cornerRadius: 8,
+
+                    callbacks: {
+                        label: function(context) {
+                            return ' Stok: ' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+
+                    ticks: {
+                        color: '#64748b',
+                        font: {
+                            size: 11
+                        }
+                    },
+
+                    border: {
+                        display: false
+                    }
+                },
+
+                y: {
+                    beginAtZero: true,
+
+                    ticks: {
+                        precision: 0,
+                        color: '#64748b'
+                    },
+
+                    grid: {
+                        color: '#f1f5f9',
+                        drawBorder: false
+                    },
+
+                    border: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,197 @@
+
+{% extends 'inventory/base.html' %}
+
+{% block title %}Data Barang - Inventory System{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold">Data Barang</h2>
+        <p class="text-muted mb-0">
+            Kelola seluruh data barang inventory
+        </p>
+    </div>
+
+    <a href="{% url 'tambah_barang' %}" class="btn btn-primary">
+        + Tambah Barang
+    </a>
+</div>
+
+<!-- Informasi Total Barang -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <p class="text-muted mb-1">Total Barang Terdaftar</p>
+        <h3 class="fw-bold mb-0">{{ total_barang }}</h3>
+    </div>
+</div>
+
+<!-- Tabel Data Barang -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+
+        <!-- Pencarian dan Filter -->
+        <form method="GET" class="row g-2 mb-4">
+
+            <div class="col-md-5">
+                <input
+                    type="text"
+                    name="search"
+                    class="form-control"
+                    placeholder="Cari kode atau nama barang..."
+                    value="{{ search }}"
+                >
+            </div>
+
+            <div class="col-md-4">
+                <select name="kategori" class="form-select">
+                    <option value="">Semua Kategori</option>
+
+                    {% for kategori in kategori_list %}
+                        <option
+                            value="{{ kategori }}"
+                            {% if kategori_filter == kategori %}selected{% endif %}
+                        >
+                            {{ kategori }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    Cari
+                </button>
+
+                <a href="{% url 'data_barang' %}" class="btn btn-secondary">
+                    Reset
+                </a>
+            </div>
+
+        </form>
+
+        <!-- Tabel -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>No</th>
+                        <th>Kode Barang</th>
+                        <th>Nama Barang</th>
+                        <th>Kategori</th>
+                        <th>Stok</th>
+                        <th>Harga</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in barang %}
+                    <tr>
+                        <td>
+                            {{ page_obj.start_index|add:forloop.counter0 }}
+                        </td>
+
+                        <td>{{ item.kode_barang }}</td>
+                        <td>{{ item.nama_barang }}</td>
+                        <td>{{ item.kategori }}</td>
+
+                        <td>
+                            {% if item.stok <= 5 %}
+                                <span class="badge bg-warning text-dark">
+                                    {{ item.stok }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-success">
+                                    {{ item.stok }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>Rp {{ item.harga }}</td>
+
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a
+                                    href="{% url 'edit_barang' item.id %}"
+                                    class="btn btn-sm btn-warning"
+                                >
+                                    Edit
+                                </a>
+
+                                <a
+                                    href="{% url 'hapus_barang' item.id %}"
+                                    class="btn btn-sm btn-danger"
+                                >
+                                    Hapus
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            Data barang tidak ditemukan.
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Informasi dan Pagination -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+
+            <small class="text-muted">
+                Menampilkan {{ page_obj.start_index }} -
+                {{ page_obj.end_index }} dari
+                {{ page_obj.paginator.count }} data.
+            </small>
+
+            {% if page_obj.has_other_pages %}
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?page={{ page_obj.previous_page_number }}&search={{ search|urlencode }}&kategori={{ kategori_filter|urlencode }}">
+                            Sebelumnya
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link"
+                           href="?page={{ num }}&search={{ search|urlencode }}&kategori={{ kategori_filter|urlencode }}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?page={{ page_obj.next_page_number }}&search={{ search|urlencode }}&kategori={{ kategori_filter|urlencode }}">
+                            Selanjutnya
+                        </a>
+                    </li>
+                    {% endif %}
+
+                </ul>
+            </nav>
+            {% endif %}
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

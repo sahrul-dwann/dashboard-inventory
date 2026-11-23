@@ -93,7 +93,7 @@
       <nav>
         <a href="{% url 'dashboard' %}" class="sidebar-link"> Dashboard </a>
 
-        <a href="#" class="sidebar-link"> Data Barang </a>
+        <a href="{% url 'data_barang' %}" class="sidebar-link"> Data Barang </a>
 
         <a href="{% url 'tambah_barang' %}" class="sidebar-link">
           Tambah Barang
@@ -122,5 +122,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript tambahan setiap halaman -->
+    {% block extra_js %}{% endblock %}
   </body>
 </html>
