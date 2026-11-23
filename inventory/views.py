@@ -19,9 +19,15 @@ def dashboard(request):
         item.stok for item in semua_barang
     )
 
-    stok_menipis = semua_barang.filter(
-        stok__lte=5
-    ).count()
+    # Mengambil daftar barang dengan stok 5 atau kurang
+    barang_stok_menipis = list(
+        semua_barang
+        .filter(stok__lte=5)
+        .order_by('stok')
+    )
+
+    # Menghitung jumlah barang dengan stok menipis
+    stok_menipis = len(barang_stok_menipis)
 
     # Data grafik berdasarkan kategori
     kategori_chart = list(
@@ -44,6 +50,7 @@ def dashboard(request):
         'stok_menipis': stok_menipis,
         'kategori_chart': kategori_chart,
         'stok_chart': stok_chart,
+        'barang_stok_menipis': barang_stok_menipis,
     }
 
     return render(
