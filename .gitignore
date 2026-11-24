@@ -1,4 +1,3 @@
-
 # Virtual Environment
 venv/
 env/
@@ -17,6 +16,8 @@ media/
 
 # Environment Variables
 .env
+.env.*
+!.env.example
 
 # IDE
 .vscode/

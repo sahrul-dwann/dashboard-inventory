@@ -45,3 +45,24 @@ class BarangForm(forms.ModelForm):
                 'rows': 4,
             }),
         }
+
+
+# Form Import Data Barang dari Excel
+class ImportBarangForm(forms.Form):
+    file = forms.FileField(
+        label='Pilih File Excel',
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.xlsx',
+        })
+    )
+
+    def clean_file(self):
+        file = self.cleaned_data['file']
+
+        if not file.name.endswith('.xlsx'):
+            raise forms.ValidationError(
+                'Format file harus Excel (.xlsx).'
+            )
+
+        return file
